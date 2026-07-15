@@ -1,0 +1,79 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f5f7fb;
+  color: #16223a;
+}
+
+.layout {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.kpi-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(10, 25, 50, 0.08);
+}
+
+.error {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+textarea,
+input {
+  width: 100%;
+  margin-top: 0.4rem;
+  margin-bottom: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #c9d2e3;
+  padding: 0.6rem;
+  font: inherit;
+}
+
+button {
+  border: 0;
+  border-radius: 8px;
+  background: #1d4ed8;
+  color: #fff;
+  padding: 0.6rem 0.9rem;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+}
+
+.draft-card {
+  border: 1px solid #d6def0;
+  border-radius: 8px;
+  padding: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.draft-card pre {
+  white-space: pre-wrap;
+  background: #f8fafc;
+  border-radius: 6px;
+  padding: 0.6rem;
+}
+
+.button-row {
+  display: flex;
+  gap: 0.5rem;
+}

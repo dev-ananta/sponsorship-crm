@@ -1,16 +1,19 @@
 from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict, EmailStr, HttpUrl
+
 from app.models.crm import DraftStatus
 
 
-# Base Schemas
 class OrganizationBase(BaseModel):
     name: str
     website: HttpUrl
     mission: str | None = None
     description: str | None = None
     industry: str | None = None
+    location: str | None = None
     public_email: EmailStr | None = None
+    public_contact: str | None = None
     notes: str | None = None
 
 
@@ -23,18 +26,24 @@ class OrganizationUpdate(BaseModel):
     mission: str | None = None
     description: str | None = None
     industry: str | None = None
+    location: str | None = None
     public_email: EmailStr | None = None
+    public_contact: str | None = None
     notes: str | None = None
 
 
 class OrganizationResponse(OrganizationBase):
     model_config = ConfigDict(from_attributes=True)
+
     id: int
     created_at: datetime
     updated_at: datetime
 
 
-# Template Schemas
+class DiscoveryRequest(BaseModel):
+    urls: list[HttpUrl]
+
+
 class EmailTemplateBase(BaseModel):
     name: str
     subject_blueprint: str
@@ -47,15 +56,9 @@ class EmailTemplateCreate(EmailTemplateBase):
 
 class EmailTemplateResponse(EmailTemplateBase):
     model_config = ConfigDict(from_attributes=True)
+
     id: int
     created_at: datetime
-
-
-# Draft Schemas
-class EmailDraftBase(BaseModel):
-    subject: str
-    body: str
-    status: DraftStatus
 
 
 class EmailDraftCreate(BaseModel):
@@ -72,25 +75,16 @@ class EmailDraftUpdate(BaseModel):
     status: DraftStatus | None = None
 
 
-class EmailDraftResponse(EmailDraftBase):
+class EmailDraftResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+
     id: int
     organization_id: int
+    subject: str
+    body: str
+    status: DraftStatus
     created_at: datetime
     updated_at: datetime
-
-
-# Log and Bulk Schemas
-class AuditLogResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    id: int
-    action: str
-    details: str
-    timestamp: datetime
-
-
-class DiscoveryRequest(BaseModel):
-    urls: list[HttpUrl]
 
 
 class DashboardStats(BaseModel):
@@ -100,3 +94,23 @@ class DashboardStats(BaseModel):
     sent_emails: int
     replies: int
     declined_organizations: int
+
+
+class AuditLogResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    action: str
+    details: str
+    created_at: datetime
+
+
+class ImportSummary(BaseModel):
+    imported: int
+    skipped: int
+
+
+class DraftReviewAction(BaseModel):
+    subject: str | None = None
+    body: str | None = None
+    status: DraftStatus
