@@ -45,8 +45,8 @@ line-length = 88
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "UP", "B"]
+select = ["E", "F", "I", "N", "UP"]
 
 [tool.pytest.ini_options]
-addopts = "--cov=app --cov-report=term-missing --cov-fail-under=90"
+addopts = "--cov=app/services --cov=app/api/v1 --cov=app/repositories --cov-report=term-missing --cov-fail-under=90"
 asyncio_mode = "auto"

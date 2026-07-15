@@ -60,7 +60,9 @@ class CRMService:
         await self.audit_repo.log("profile_created", {"organization_id": org.id})
         return org
 
-    async def update_organization(self, organization_id: int, payload: OrganizationUpdate):
+    async def update_organization(
+        self, organization_id: int, payload: OrganizationUpdate
+    ):
         org = await self.org_repo.get(organization_id)
         if org is None:
             raise NotFoundError("Organization not found")
@@ -69,7 +71,9 @@ class CRMService:
             org,
             payload.model_dump(mode="json", exclude_unset=True),
         )
-        await self.audit_repo.log("profile_updated", {"organization_id": organization_id})
+        await self.audit_repo.log(
+            "profile_updated", {"organization_id": organization_id}
+        )
         return updated
 
     async def create_template(self, payload: EmailTemplateCreate):

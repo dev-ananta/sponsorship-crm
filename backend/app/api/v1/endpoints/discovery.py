@@ -12,4 +12,6 @@ async def discover_organizations(
     payload: DiscoveryRequest,
     service: CRMService = Depends(get_crm_service),
 ) -> list[OrganizationResponse]:
-    return list(await service.discover_organizations([str(url) for url in payload.urls]))
+    return list(
+        await service.discover_organizations([str(url) for url in payload.urls])
+    )

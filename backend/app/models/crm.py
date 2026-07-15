@@ -28,7 +28,9 @@ class Organization(Base):
     public_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     public_contact: Mapped[str | None] = mapped_column(String(255), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(UTC),
@@ -48,18 +50,26 @@ class EmailTemplate(Base):
     name: Mapped[str] = mapped_column(String(120), unique=True, index=True)
     subject_blueprint: Mapped[str] = mapped_column(String(255))
     body_blueprint: Mapped[str] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
 
 
 class EmailDraft(Base):
     __tablename__ = "email_drafts"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    organization_id: Mapped[int] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"))
+    organization_id: Mapped[int] = mapped_column(
+        ForeignKey("organizations.id", ondelete="CASCADE")
+    )
     subject: Mapped[str] = mapped_column(String(255))
     body: Mapped[str] = mapped_column(Text)
-    status: Mapped[DraftStatus] = mapped_column(Enum(DraftStatus), default=DraftStatus.pending, index=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
+    status: Mapped[DraftStatus] = mapped_column(
+        Enum(DraftStatus), default=DraftStatus.pending, index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(UTC),
@@ -75,4 +85,6 @@ class AuditLog(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     action: Mapped[str] = mapped_column(String(120), index=True)
     details: Mapped[str] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )

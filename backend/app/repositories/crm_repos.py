@@ -3,7 +3,13 @@ import json
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.crm import AuditLog, DraftStatus, EmailDraft, EmailTemplate, Organization
+from app.models.crm import (
+    AuditLog,
+    DraftStatus,
+    EmailDraft,
+    EmailTemplate,
+    Organization,
+)
 from app.repositories.base import BaseRepository
 
 

@@ -26,6 +26,9 @@ class ImportExportService:
         for row in dataframe.to_dict(orient="records"):
             website = row.get("website")
             name = row.get("name")
+            if pd.isna(website) or pd.isna(name):
+                skipped += 1
+                continue
             if not website or not name:
                 skipped += 1
                 continue

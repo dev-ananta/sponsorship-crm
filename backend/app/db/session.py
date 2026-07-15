@@ -5,7 +5,6 @@ from sqlalchemy.orm import DeclarativeBase
 
 from app.core.config import settings
 
-
 connect_args = {"check_same_thread": False} if "sqlite" in settings.db_scheme else {}
 
 engine = create_async_engine(
@@ -14,7 +13,9 @@ engine = create_async_engine(
     future=True,
     pool_pre_ping=True,
 )
-SessionLocal = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
+SessionLocal = async_sessionmaker(
+    bind=engine, class_=AsyncSession, expire_on_commit=False
+)
 
 
 class Base(DeclarativeBase):

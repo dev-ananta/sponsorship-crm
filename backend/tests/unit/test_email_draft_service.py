@@ -24,7 +24,9 @@ def template() -> EmailTemplate:
     )
 
 
-def test_render_factual_draft_uses_only_context(organization: Organization, template: EmailTemplate) -> None:
+def test_render_factual_draft_uses_only_context(
+    organization: Organization, template: EmailTemplate
+) -> None:
     service = DraftGenerationService()
 
     result = service.render_factual_draft(
@@ -42,7 +44,9 @@ def test_render_factual_draft_uses_only_context(organization: Organization, temp
     assert "Event: Robotics Expo" in result["body"]
 
 
-def test_render_factual_draft_requires_context(organization: Organization, template: EmailTemplate) -> None:
+def test_render_factual_draft_requires_context(
+    organization: Organization, template: EmailTemplate
+) -> None:
     service = DraftGenerationService()
 
     with pytest.raises(KeyError):

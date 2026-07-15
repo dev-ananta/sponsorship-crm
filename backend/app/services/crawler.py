@@ -9,7 +9,6 @@ from playwright.async_api import async_playwright
 
 from app.core.errors import AppError
 
-
 EMAIL_REGEX = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
 MISSION_KEYWORDS = ("mission", "about", "who we are", "our purpose")
 LOCATION_KEYWORDS = ("location", "address", "headquarters")
@@ -77,6 +76,9 @@ class ComplianceScraper:
 
         contact = None
         for link in soup.find_all("a"):
+            href = (link.get("href") or "").strip()
+            if href.startswith("mailto:") and email is None:
+                email = href.removeprefix("mailto:").strip() or None
             label = link.get_text(" ", strip=True)
             if any(keyword in label.lower() for keyword in CONTACT_KEYWORDS):
                 contact = label[:255]
@@ -92,7 +94,9 @@ class ComplianceScraper:
             target = urlparse(full_url)
             if target.netloc != parsed.netloc:
                 continue
-            if any(word in full_url.lower() for word in ("about", "mission", "contact")):
+            if any(
+                word in full_url.lower() for word in ("about", "mission", "contact")
+            ):
                 candidates.append(full_url)
         return candidates[:3]
 
@@ -117,7 +121,9 @@ class ComplianceScraper:
             except Exception:
                 continue
             sub_soup = BeautifulSoup(sub_html, "html.parser")
-            for element in sub_soup.find_all(["h1", "h2", "h3", "p", "li", "span", "div"]):
+            for element in sub_soup.find_all(
+                ["h1", "h2", "h3", "p", "li", "span", "div"]
+            ):
                 combined_soup.append(element)
 
         title = soup.title.get_text(strip=True) if soup.title else urlparse(url).netloc

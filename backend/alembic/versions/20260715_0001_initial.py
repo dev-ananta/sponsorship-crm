@@ -5,17 +5,17 @@ Revises:
 Create Date: 2026-07-15 00:00:00
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "20260715_0001"
-down_revision: Union[str, None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -27,7 +27,9 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_audit_logs_action"), "audit_logs", ["action"], unique=False)
+    op.create_index(
+        op.f("ix_audit_logs_action"), "audit_logs", ["action"], unique=False
+    )
 
     op.create_table(
         "email_templates",
@@ -82,15 +84,26 @@ def upgrade() -> None:
         sa.Column("body", sa.Text(), nullable=False),
         sa.Column(
             "status",
-            sa.Enum("pending", "approved", "rejected", "sent", "declined", name="draftstatus"),
+            sa.Enum(
+                "pending",
+                "approved",
+                "rejected",
+                "sent",
+                "declined",
+                name="draftstatus",
+            ),
             nullable=False,
         ),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
-        sa.ForeignKeyConstraint(["organization_id"], ["organizations.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["organization_id"], ["organizations.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_email_drafts_status"), "email_drafts", ["status"], unique=False)
+    op.create_index(
+        op.f("ix_email_drafts_status"), "email_drafts", ["status"], unique=False
+    )
 
 
 def downgrade() -> None:

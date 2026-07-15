@@ -44,7 +44,8 @@ class Settings(BaseSettings):
             credentials = f"{self.db_user}:{self.db_password}@"
 
         port = f":{self.db_port}" if self.db_port else ""
-        return f"{self.db_scheme}://{credentials}{self.db_host or 'localhost'}{port}/{self.db_name}"
+        host = self.db_host or "localhost"
+        return f"{self.db_scheme}://{credentials}{host}{port}/{self.db_name}"
 
 
 @lru_cache(maxsize=1)

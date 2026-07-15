@@ -27,6 +27,8 @@ class DraftGenerationService:
         subject = Environment(undefined=StrictUndefined).from_string(
             template.subject_blueprint
         )
-        body = Environment(undefined=StrictUndefined).from_string(template.body_blueprint)
+        body = Environment(undefined=StrictUndefined).from_string(
+            template.body_blueprint
+        )
 
         return {"subject": subject.render(context), "body": body.render(context)}

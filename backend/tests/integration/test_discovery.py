@@ -9,7 +9,9 @@ async def test_discovery_endpoint_imports_profiles(
     client: AsyncClient,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    async def fake_extract_profile(_: ComplianceScraper, url: str) -> dict[str, str | None]:
+    async def fake_extract_profile(
+        _: ComplianceScraper, url: str
+    ) -> dict[str, str | None]:
         return {
             "name": "Discovered Org",
             "website": url,

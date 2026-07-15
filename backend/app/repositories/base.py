@@ -15,7 +15,9 @@ class BaseRepository(Generic[ModelType]):
         self.session = session
 
     async def get(self, entity_id: int) -> ModelType | None:
-        stmt: Select[tuple[ModelType]] = select(self.model).where(self.model.id == entity_id)
+        stmt: Select[tuple[ModelType]] = select(self.model).where(
+            self.model.id == entity_id
+        )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
