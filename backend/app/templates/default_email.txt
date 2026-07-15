@@ -1,0 +1,10 @@
+Hi {{organization}},
+
+I reviewed your public mission statement{{ ': ' + mission if mission else '' }} and would like to ask about sponsoring {{event}}.
+
+Our request: {{request}}
+
+You can review us here: {{website}}
+
+Best,
+{{sender_name}}

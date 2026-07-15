@@ -1,37 +1,56 @@
-import logging
+from functools import lru_cache
 from typing import Literal
-from pydantic import Field, computed_field
+
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", case_sensitive=True
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
     )
 
-    ENVIRONMENT: Literal["development", "production", "testing"] = "development"
-    PROJECT_NAME: str = "Sponsorship CRM"
-    API_V1_STR: str = "/api/v1"
+    environment: Literal["development", "testing", "production"] = "development"
+    project_name: str = "Sponsorship CRM"
+    api_v1_prefix: str = "/api/v1"
 
-    # Database Configuration
-    DB_SCHEME: str = "sqlite+aiosqlite"
-    DB_USER: str | None = None
-    DB_PASSWORD: str | None = None
-    DB_HOST: str | None = None
-    DB_PORT: str | None = None
-    DB_PATH: str = "./sponsorship_crm.db"
+    db_scheme: str = "sqlite+aiosqlite"
+    db_user: str | None = None
+    db_password: str | None = None
+    db_host: str | None = None
+    db_port: int | None = None
+    db_name: str = "./sponsorship_crm.db"
 
-    @computed_field
+    cors_origins: list[str] = Field(
+        default_factory=lambda: [
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "http://localhost:4173",
+        ]
+    )
+
+    log_level: str = "INFO"
+    scheduler_timezone: str = "UTC"
+
     @property
-    def DATABASE_URL(self) -> str:
-        """Dynamically computes connection string based on driver choice."""
-        if "sqlite" in self.DB_SCHEME:
-            return f"{self.DB_SCHEME}:///{self.DB_PATH}"
-        return f"{self.DB_SCHEME}://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_PATH}"
+    def database_url(self) -> str:
+        if self.db_scheme.startswith("sqlite"):
+            return f"{self.db_scheme}:///{self.db_name}"
 
-    # Application Configuration
-    LOG_LEVEL: int = logging.INFO
-    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:5173"]
+        credentials = ""
+        if self.db_user and self.db_password:
+            credentials = f"{self.db_user}:{self.db_password}@"
+
+        port = f":{self.db_port}" if self.db_port else ""
+        host = self.db_host or "localhost"
+        return f"{self.db_scheme}://{credentials}{host}{port}/{self.db_name}"
 
 
-settings = Settings()
+@lru_cache(maxsize=1)
+def get_settings() -> Settings:
+    return Settings()
+
+
+settings = get_settings()

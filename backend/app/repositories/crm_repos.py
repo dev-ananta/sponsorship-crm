@@ -1,48 +1,73 @@
 import json
-from sqlalchemy import select, func
+
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.crm import Organization, EmailTemplate, EmailDraft, AuditLog, DraftStatus
+
+from app.models.crm import (
+    AuditLog,
+    DraftStatus,
+    EmailDraft,
+    EmailTemplate,
+    Organization,
+)
 from app.repositories.base import BaseRepository
 
 
-class AuditLogRepository(BaseRepository[AuditLog]):
-    def __init__(self, db: AsyncSession):
-        super().__init__(AuditLog, db)
-
-    async def log_action(self, action: str, details: dict | str) -> AuditLog:
-        detail_str = json.dumps(details) if isinstance(details, dict) else details
-        return await self.create({"action": action, "details": detail_str})
-
-
 class OrganizationRepository(BaseRepository[Organization]):
-    def __init__(self, db: AsyncSession):
-        super().__init__(Organization, db)
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(Organization, session)
 
-    async def get_by_url(self, url: str) -> Organization | None:
-        result = await self.db.execute(select(self.model).where(self.model.website == url))
-        return result.scalars().first()
+    async def get_by_website(self, website: str) -> Organization | None:
+        result = await self.session.execute(
+            select(Organization).where(Organization.website == website)
+        )
+        return result.scalar_one_or_none()
 
 
 class EmailTemplateRepository(BaseRepository[EmailTemplate]):
-    def __init__(self, db: AsyncSession):
-        super().__init__(EmailTemplate, db)
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(EmailTemplate, session)
+
+    async def get_by_name(self, name: str) -> EmailTemplate | None:
+        result = await self.session.execute(
+            select(EmailTemplate).where(EmailTemplate.name == name)
+        )
+        return result.scalar_one_or_none()
 
 
 class EmailDraftRepository(BaseRepository[EmailDraft]):
-    def __init__(self, db: AsyncSession):
-        super().__init__(EmailDraft, db)
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(EmailDraft, session)
 
-    async def get_dashboard_metrics(self) -> dict:
-        total_orgs = await self.db.scalar(select(func.count(Organization.id)))
-        
-        async def count_status(status_val: DraftStatus) -> int:
-            return await self.db.scalar(select(func.count(EmailDraft.id)).where(EmailDraft.status == status_val)) or 0
+    async def list_by_status(self, status: DraftStatus) -> list[EmailDraft]:
+        result = await self.session.execute(
+            select(EmailDraft).where(EmailDraft.status == status)
+        )
+        return list(result.scalars().all())
+
+    async def dashboard_metrics(self) -> dict[str, int]:
+        total_orgs = await self.session.scalar(select(func.count(Organization.id)))
+
+        async def count_drafts(status: DraftStatus) -> int:
+            value = await self.session.scalar(
+                select(func.count(EmailDraft.id)).where(EmailDraft.status == status)
+            )
+            return value or 0
 
         return {
             "organizations_imported": total_orgs or 0,
-            "drafts_pending_review": await count_status(DraftStatus.PENDING),
-            "approved_drafts": await count_status(DraftStatus.APPROVED),
-            "sent_emails": await count_status(DraftStatus.SENT),
-            "replies": 0,  # Hook for inbound integration hooks
-            "declined_organizations": await count_status(DraftStatus.DECLINED)
+            "drafts_pending_review": await count_drafts(DraftStatus.pending),
+            "approved_drafts": await count_drafts(DraftStatus.approved),
+            "sent_emails": await count_drafts(DraftStatus.sent),
+            "replies": 0,
+            "declined_organizations": await count_drafts(DraftStatus.declined),
         }
+
+
+class AuditLogRepository(BaseRepository[AuditLog]):
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(AuditLog, session)
+
+    async def log(self, action: str, details: dict | str) -> AuditLog:
+        payload = json.dumps(details) if isinstance(details, dict) else details
+        return await self.create({"action": action, "details": payload})
